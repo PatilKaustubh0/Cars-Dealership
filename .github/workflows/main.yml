@@ -1,20 +1,20 @@
 name: 'Lint Code'
-on:
-  push:
+on: 
+  push: 
     branches: [master, main]
-  pull_request:
+  pull_request: 
     branches: [master, main]
-jobs:
-  lint_python:
+jobs: 
+  lint_python: 
     name: Lint Python Files
     runs-on: ubuntu-latest
-    steps:
+    steps: 
     - name: Checkout Repository
       uses: actions/checkout@v3
     
     - name: Set up Python
       uses: actions/setup-python@v4
-      with:
+      with: 
         python-version: 3.12
     - name: Install dependencies
       run: |
@@ -28,15 +28,15 @@ jobs:
         # This command finds all Python files recursively and runs flake8 on them
         find . -name "*.py" -exec flake8 {} +
         echo "Linted all the python files successfully"
-  lint_js:
+  lint_js: 
       name: Lint JavaScript Files
       runs-on: ubuntu-latest
-      steps:
+      steps: 
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v3
-        with:
+        with: 
           node-version: 14
       - name: Install JSHint
         run: npm install jshint --global
