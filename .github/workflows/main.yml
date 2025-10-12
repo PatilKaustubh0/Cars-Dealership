@@ -19,14 +19,6 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Cache Python dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-python-
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -34,7 +26,12 @@ jobs:
 
       - name: Run Linter on Changed Python Files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "\.py$" | xargs flake8
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "\.py$")
+          if [ -n "$changed_files" ]; then
+            echo "$changed_files" | xargs flake8
+          else
+            echo "No Python files changed, skipping linting."
+          fi
           
   lint_js:
     name: Lint JavaScript Files
@@ -43,19 +40,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install Node.js and JSHint
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 14
 
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install -g jshint
+
       - name: Run Linter on Changed JavaScript Files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "\.js$" | xargs jshint
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "\.js$")
+          if [ -n "$changed_files" ]; then
+            echo "$changed_files" | xargs jshint
+          else
+            echo "No JavaScript files changed, skipping linting."
+          fi
